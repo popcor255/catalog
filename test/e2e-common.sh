@@ -27,8 +27,7 @@ source $(dirname $0)/../vendor/github.com/tektoncd/plumbing/scripts/e2e-tests.sh
 # from our tests withouth having to go to an external registry.
 function add_sidecar_registry() {
     cp ${1} ${TMPF}.read
-
-    cat ${TMPF}.read | python3 -c 'import yaml;f=open(0, encoding="utf-8"); data=yaml.load(f.read(), Loader=yaml.FullLoader);data["spec"]["sidecars"]=[{"image":"registry", "name": "registry"}];print(yaml.dump(data, default_flow_style=False));' > ${TMPF}
+    cat ${TMPF}.read | python3 utils.py add_sidecar_to_yaml_file > ${TMPF}
     rm -f ${TMPF}.read
 }
 
