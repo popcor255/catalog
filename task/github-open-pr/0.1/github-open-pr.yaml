@@ -1,0 +1,69 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: github-open-pr
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/tags: github
+    tekton.dev/displayName: "add github pr"
+spec:
+  description: >-
+    This Task will open a pr to Github.
+
+    A collection of tasks to help working with the Github API.
+    Most tasks would expect to have a secret set in the kubernetes
+    secret `github` with a Github token in the key `token`.
+
+  params:
+  - name: GITHUB_REPO
+    description: |
+      Name of the target github repo
+  - name: GITHUB_ORG
+    description: |
+      Name of the target github org 
+  - name: GITHUB_PR_TITLE
+    description: |
+      Name of the target github pull request title.
+    type: string
+  - name: GITHUB_PR_BODY
+    description: |
+      Value of the target github pull request body.
+    type: string
+  - name: MY_GITHUB_USERNAME
+    description: |
+      Name of the github username
+  - name: MY_GITHUB_REPO
+    description: |
+      Name of the user's github repo
+  - name: MY_GITHUB_ORG
+    description: |
+      Name of the user's github repo
+  - name: MY_GITHUB_TOKEN_SECRET
+    description: |
+      Name of the secret holding the github-token.
+    type: string
+    default: github
+  - name: MY_GITHUB_TOKEN_SECRET_KEY
+    description: |
+      Name of the secret key holding the github-token.
+    type: string
+    default: token
+  steps:
+    - name: open-pr
+      image: alpine
+      script: |
+        #!/bin/sh
+        curl -u "$(params.MY_GITHUB_USERNAME):$TOKEN" -X POST -d \
+        '{"title":"$(params.GITHUB_PR_TITLE)", \
+        "body":"$(params.GITHUB_PR_BODY)", \
+        "base":"$(params.GITHUB_BRANCH)", \
+        "head":"$(params.MY_GITHUB_ORG):(params.MY_GITHUB_BRANCH)"}' \
+        https://api.github.com/repos/$(params.GITHUB_ORG)/$(params.GITHUB_REPO)/pulls
+      env:
+        - name: TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.MY_GITHUB_TOKEN_SECRET)
+              key: $(params.MY_GITHUB_TOKEN_SECRET_KEY)
