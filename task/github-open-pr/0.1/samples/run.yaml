@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: github-open-pr-run
+spec:
+  taskRef:
+    name: github-open-pr
+    params:
+    - name: GITHUB_REPO
+      value: catalog
+    - name: GITHUB_ORG
+      value: tektoncd
+    - name: GITHUB_PR_TITLE
+      value: Add open pull request task to catalog
+    - name: GITHUB_PR_BODY
+      value: Add a tekton task that allows a user to open a pull request
+    - name: MY_GITHUB_USERNAME
+      value: popcor255
+    - name: MY_GITHUB_REPO
+      value: catalog
+    - name: MY_GITHUB_TOKEN_SECRET
+      value: popcor255-github-secret
